@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Close Tab Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f5f3;
+      color: #1a1a18;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1a18;
+    }
+
+    p {
+      font-size: 14px;
+      color: #6b6b67;
+      line-height: 1.7;
+    }
+
+    .storage-box {
+      background: #f5f5f3;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 10px;
+      padding: 0.875rem 1rem;
+      font-size: 13px;
+      font-family: ui-monospace, 'Courier New', monospace;
+      color: #6b6b67;
+      line-height: 1.8;
+    }
+
+    .status-list {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #6b6b67;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #c0bfb8;
+      flex-shrink: 0;
+      transition: background 0.3s ease;
+    }
+    .dot.done { background: #1D9E75; }
+    .dot.fail { background: #E24B4A; }
+
+    .log {
+      display: none;
+      background: #f5f5f3;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 12px;
+      font-family: ui-monospace, 'Courier New', monospace;
+      color: #6b6b67;
+      line-height: 1.9;
+      min-height: 80px;
+    }
+
+    .log-line { display: block; }
+    .log-line.ok  { color: #1D9E75; }
+    .log-line.err { color: #E24B4A; }
+    .log-line.info { color: #6b6b67; }
+
+    .btn-danger {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 11px 16px;
+      border-radius: 10px;
+      border: 1px solid #A32D2D;
+      background: #FCEBEB;
+      color: #A32D2D;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-danger:hover:not(:disabled) { background: #F7C1C1; }
+    .btn-danger:active:not(:disabled) { transform: scale(0.98); }
+    .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .note {
+      font-size: 12px;
+      color: #9b9b96;
+      line-height: 1.6;
+      border-top: 1px solid rgba(0,0,0,0.07);
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Sensitive session demo</h1>
+
+    <p>This page has sensitive data stored in localStorage and sessionStorage. Click below to wipe storage, replace the history entry, and attempt to close the tab.</p>
+
+    <div class="storage-box" id="storage-preview">
+      localStorage.secretToken = "abc123xyz"<br>
+      sessionStorage.userId = "user_9821"<br>
+      history.length = <span id="hist-len">?</span>
+    </div>
+
+    <div class="status-list" id="status-list">
+      <div class="status-item"><div class="dot" id="dot-storage"></div><span id="lbl-storage">Clearing storage...</span></div>
+      <div class="status-item"><div class="dot" id="dot-history"></div><span id="lbl-history">Replacing history entry...</span></div>
+      <div class="status-item"><div class="dot" id="dot-close"></div><span id="lbl-close">Closing tab...</span></div>
+    </div>
+
+    <div class="log" id="log"></div>
+
+    <button class="btn-danger" id="close-btn" onclick="runSequence()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M1 1l12 12M13 1L1 13" stroke="#A32D2D" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Close tab &amp; clear history
+    </button>
+
+    <p class="note">
+      On Netlify, <code>window.close()</code> is blocked by the browser for user-opened tabs.
+      This demo wipes storage and replaces the history entry, then falls back to <code>about:blank</code> if the tab can't be closed.
+    </p>
+  </div>
+
+  <script>
+    localStorage.setItem('secretToken', 'abc123xyz');
+    sessionStorage.setItem('userId', 'user_9821');
+    document.getElementById('hist-len').textContent = history.length;
+
+    function addLog(msg, type = 'info') {
+      const el = document.getElementById('log');
+      el.style.display = 'block';
+      const line = document.createElement('span');
+      line.className = 'log-line ' + type;
+      line.textContent = '> ' + msg;
+      el.appendChild(line);
+      el.appendChild(document.createElement('br'));
+    }
+
+    function setDot(id, state, label) {
+      document.getElementById('dot-' + id).className = 'dot ' + state;
+      document.getElementById('lbl-' + id).textContent = label;
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function runSequence() {
+      const btn = document.getElementById('close-btn');
+      btn.disabled = true;
+
+      document.getElementById('status-list').style.display = 'flex';
+
+      await sleep(300);
+
+      // Step 1: Clear storage
+      localStorage.clear();
+      sessionStorage.clear();
+      setDot('storage', 'done', 'Storage cleared');
+      addLog('localStorage cleared', 'ok');
+      addLog('sessionStorage cleared', 'ok');
+      document.getElementById('storage-preview').innerHTML =
+        '<span style="color:#1D9E75">localStorage → empty<br>sessionStorage → empty</span>';
+
+      await sleep(500);
+
+      // Step 2: Replace history entry
+      history.replaceState(null, '', location.href);
+      setDot('history', 'done', 'History entry replaced');
+      addLog('history.replaceState() called', 'ok');
+      addLog('back button will not return to this page', 'ok');
+
+      await sleep(500);
+
+      // Step 3: Attempt to close tab
+      addLog('attempting window.close()...', 'info');
+      window.close();
+
+      await sleep(500);
+
+      if (!window.closed) {
+        setDot('close', 'fail', 'Tab close blocked by browser');
+        addLog('window.close() blocked (user-opened tab)', 'err');
+        addLog('falling back to about:blank in 1s...', 'info');
+        await sleep(1000);
+        window.location.href = 'about:blank';
+      } else {
+        setDot('close', 'done', 'Tab closed successfully');
+      }
+    }
+  </script>
+
+</body>
+</html>
