@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Close Tab Demo</title>
+  <title>Clear &amp; Close</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -15,69 +15,89 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 2rem;
+      padding: 2rem 1rem;
     }
 
     .card {
-      background: #ffffff;
+      background: #fff;
       border: 1px solid rgba(0,0,0,0.1);
       border-radius: 16px;
-      padding: 2rem;
+      padding: 1.75rem;
       width: 100%;
       max-width: 460px;
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      gap: 1.125rem;
     }
 
-    h1 {
-      font-size: 20px;
-      font-weight: 600;
-      color: #1a1a18;
-    }
-
-    p {
-      font-size: 14px;
-      color: #6b6b67;
-      line-height: 1.7;
-    }
-
-    .storage-box {
-      background: #f5f5f3;
-      border: 1px solid rgba(0,0,0,0.08);
-      border-radius: 10px;
-      padding: 0.875rem 1rem;
-      font-size: 13px;
-      font-family: ui-monospace, 'Courier New', monospace;
-      color: #6b6b67;
-      line-height: 1.8;
-    }
-
-    .status-list {
-      display: none;
-      flex-direction: column;
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
       gap: 8px;
     }
 
-    .status-item {
-      display: flex;
+    h1 { font-size: 20px; font-weight: 600; }
+
+    .device-badge {
+      display: inline-flex;
       align-items: center;
+      background: #f5f5f3;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: #6b6b67;
+    }
+
+    .sub {
+      font-size: 13px;
+      color: #6b6b67;
+      line-height: 1.6;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
       gap: 10px;
+      padding: 10px 12px;
+      background: #f5f5f3;
+      border-radius: 10px;
       font-size: 13px;
       color: #6b6b67;
     }
 
-    .dot {
-      width: 8px;
-      height: 8px;
+    .step-num {
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
-      background: #c0bfb8;
+      background: #d3d1c7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
       flex-shrink: 0;
+      margin-top: 1px;
       transition: background 0.3s ease;
     }
-    .dot.done { background: #1D9E75; }
-    .dot.fail { background: #E24B4A; }
+
+    .step-num.done { background: #1D9E75; }
+
+    .step-label {
+      display: block;
+      font-weight: 600;
+      color: #1a1a18;
+      margin-bottom: 2px;
+    }
 
     .log {
       display: none;
@@ -89,34 +109,80 @@
       font-family: ui-monospace, 'Courier New', monospace;
       color: #6b6b67;
       line-height: 1.9;
-      min-height: 80px;
     }
 
-    .log-line { display: block; }
-    .log-line.ok  { color: #1D9E75; }
-    .log-line.err { color: #E24B4A; }
-    .log-line.info { color: #6b6b67; }
+    .ll { display: block; }
+    .ok { color: #1D9E75; }
+    .er { color: #E24B4A; }
+    .in { color: #6b6b67; }
 
-    .btn-danger {
+    .instruction-card {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      background: #f5f5f3;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 10px;
+      padding: 1rem 1.125rem;
+    }
+
+    .ic-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1a18;
+      margin-bottom: 4px;
+    }
+
+    .ic-step {
+      font-size: 13px;
+      color: #6b6b67;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      line-height: 1.5;
+    }
+
+    .ic-step:last-child { border-bottom: none; }
+    .ic-num { font-weight: 600; color: #1a1a18; margin-right: 6px; }
+
+    .btn-red {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       width: 100%;
-      padding: 11px 16px;
+      padding: 12px 16px;
       border-radius: 10px;
       border: 1px solid #A32D2D;
       background: #FCEBEB;
       color: #A32D2D;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       transition: background 0.15s ease, transform 0.1s ease;
     }
 
-    .btn-danger:hover:not(:disabled) { background: #F7C1C1; }
-    .btn-danger:active:not(:disabled) { transform: scale(0.98); }
-    .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-red:hover:not(:disabled) { background: #F7C1C1; }
+    .btn-red:active:not(:disabled) { transform: scale(0.98); }
+    .btn-red:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-secondary {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.12);
+      background: #f5f5f3;
+      color: #1a1a18;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-secondary:hover { background: #eaeae8; }
+    .btn-secondary:active { transform: scale(0.98); }
 
     .note {
       font-size: 12px;
@@ -125,110 +191,294 @@
       border-top: 1px solid rgba(0,0,0,0.07);
       padding-top: 1rem;
     }
+
+    .note code {
+      font-family: ui-monospace, 'Courier New', monospace;
+      background: rgba(0,0,0,0.05);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
-
   <div class="card">
-    <h1>Sensitive session demo</h1>
-
-    <p>This page has sensitive data stored in localStorage and sessionStorage. Click below to wipe storage, replace the history entry, and attempt to close the tab.</p>
-
-    <div class="storage-box" id="storage-preview">
-      localStorage.secretToken = "abc123xyz"<br>
-      sessionStorage.userId = "user_9821"<br>
-      history.length = <span id="hist-len">?</span>
+    <div class="header">
+      <h1>Clear &amp; close</h1>
+      <div class="device-badge" id="device-badge">detecting...</div>
     </div>
 
-    <div class="status-list" id="status-list">
-      <div class="status-item"><div class="dot" id="dot-storage"></div><span id="lbl-storage">Clearing storage...</span></div>
-      <div class="status-item"><div class="dot" id="dot-history"></div><span id="lbl-history">Replacing history entry...</span></div>
-      <div class="status-item"><div class="dot" id="dot-close"></div><span id="lbl-close">Closing tab...</span></div>
+    <p class="sub" id="sub-text">Detecting your device to find the fastest path to clearing browser history.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num" id="sn1">1</div>
+        <div>
+          <span class="step-label">Clear site storage</span>
+          localStorage and sessionStorage wiped instantly
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" id="sn2">2</div>
+        <div>
+          <span class="step-label">Replace history entry</span>
+          Back button won't return to this page
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" id="sn3">3</div>
+        <div>
+          <span class="step-label" id="step3-label">Open browser history settings</span>
+          <span id="step3-sub">Fastest path for your device</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" id="sn4">4</div>
+        <div>
+          <span class="step-label">Close tab</span>
+          Redirects to about:blank if close is blocked
+        </div>
+      </div>
     </div>
 
     <div class="log" id="log"></div>
+    <div class="instruction-card" id="instruction-card"></div>
 
-    <button class="btn-danger" id="close-btn" onclick="runSequence()">
+    <button class="btn-red" id="main-btn" onclick="runAll()">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M1 1l12 12M13 1L1 13" stroke="#A32D2D" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
-      Close tab &amp; clear history
+      Clear history &amp; close tab
+    </button>
+
+    <button class="btn-secondary" id="blank-btn" onclick="window.location.href='about:blank'">
+      Go to blank page now
     </button>
 
     <p class="note">
-      On Netlify, <code>window.close()</code> is blocked by the browser for user-opened tabs.
-      This demo wipes storage and replaces the history entry, then falls back to <code>about:blank</code> if the tab can't be closed.
+      Browsers block direct history clearing from web pages. Steps 1–2 run automatically.
+      Step 3 gives the fastest manual path for your device. <code>window.close()</code> is
+      attempted but may be blocked — this page falls back to <code>about:blank</code>.
     </p>
   </div>
 
   <script>
-    localStorage.setItem('secretToken', 'abc123xyz');
-    sessionStorage.setItem('userId', 'user_9821');
-    document.getElementById('hist-len').textContent = history.length;
+    const ua = navigator.userAgent;
+    const isSamsungBrowser = /SamsungBrowser/i.test(ua);
+    const isEdge    = /Edg\//i.test(ua);
+    const isFirefox = /Firefox/i.test(ua);
+    const isChrome  = /Chrome/i.test(ua) && !isEdge && !isSamsungBrowser;
+    const isSafari  = /Safari/i.test(ua) && !isChrome && !isEdge;
+    const isIOS     = /iPhone|iPad|iPod/i.test(ua);
+    const isAndroid = /Android/i.test(ua);
 
-    function addLog(msg, type = 'info') {
+    function getDevice() {
+      if (isIOS && isSafari)             return { label: 'iOS Safari',        type: 'ios-safari'     };
+      if (isIOS && isChrome)             return { label: 'iOS Chrome',        type: 'ios-chrome'     };
+      if (isIOS)                         return { label: 'iOS browser',       type: 'ios-other'      };
+      if (isAndroid && isSamsungBrowser) return { label: 'Samsung Internet',  type: 'samsung'        };
+      if (isAndroid && isChrome)         return { label: 'Android Chrome',    type: 'android-chrome' };
+      if (isAndroid)                     return { label: 'Android browser',   type: 'android-other'  };
+      if (isEdge)                        return { label: 'Microsoft Edge',    type: 'edge'           };
+      if (isFirefox)                     return { label: 'Firefox',           type: 'firefox'        };
+      if (isChrome)                      return { label: 'Google Chrome',     type: 'chrome'         };
+      if (isSafari)                      return { label: 'Safari',            type: 'safari'         };
+      return                                    { label: 'Unknown browser',   type: 'unknown'        };
+    }
+
+    const INSTRUCTIONS = {
+      'ios-safari': {
+        url: null,
+        steps: [
+          'Tap the bottom toolbar',
+          'Tap the book icon (Bookmarks)',
+          'Tap the clock icon (History tab)',
+          'Tap "Clear" at the bottom right',
+          'Select time range and tap to confirm'
+        ]
+      },
+      'ios-chrome': {
+        url: null,
+        steps: [
+          'Tap the 3-dot menu (bottom right)',
+          'Tap "History"',
+          'Tap "Clear Browsing Data..." at the bottom',
+          'Choose time range and tap "Clear Browsing Data"'
+        ]
+      },
+      'ios-other': {
+        url: null,
+        steps: [
+          'Open your browser menu or settings',
+          'Find "Privacy" or "History"',
+          'Tap "Clear History" or "Clear Browsing Data"',
+          'Choose a time range and confirm'
+        ]
+      },
+      'android-chrome': {
+        url: 'intent://settings/clear_browsing_data#Intent;scheme=chrome;package=com.android.chrome;end',
+        steps: [
+          'Tap the 3-dot menu (top right)',
+          'Tap "History"',
+          'Tap "Clear browsing data"',
+          'Choose time range and tap "Clear data"'
+        ]
+      },
+      'samsung': {
+        url: null,
+        steps: [
+          'Tap the 3-line menu (bottom right)',
+          'Tap "History"',
+          'Tap the trash icon (top right)',
+          'Tap "Delete all" and confirm'
+        ]
+      },
+      'edge': {
+        url: 'edge://settings/clearBrowserData',
+        steps: [
+          'Press Ctrl+Shift+Delete (Cmd+Shift+Delete on Mac)',
+          'Choose time range',
+          'Check "Browsing history"',
+          'Click "Clear now"'
+        ]
+      },
+      'firefox': {
+        url: null,
+        steps: [
+          'Press Ctrl+Shift+Delete (Cmd+Shift+Delete on Mac)',
+          'Choose time range',
+          'Check "Browsing & Download History"',
+          'Click "OK" to confirm'
+        ]
+      },
+      'chrome': {
+        url: 'chrome://settings/clearBrowserData',
+        steps: [
+          'Press Ctrl+Shift+Delete (Cmd+Shift+Delete on Mac)',
+          'Choose time range',
+          'Check "Browsing history"',
+          'Click "Clear data"'
+        ]
+      },
+      'safari': {
+        url: null,
+        steps: [
+          'Open the Safari menu in the menu bar',
+          'Click "History" → "Clear History..."',
+          'Choose time range from the dropdown',
+          'Click "Clear History" to confirm'
+        ]
+      },
+      'unknown': {
+        url: null,
+        steps: [
+          'Open your browser menu or settings',
+          'Find "History" or "Privacy & Security"',
+          'Select "Clear history" or "Clear browsing data"',
+          'Choose a time range and confirm'
+        ]
+      }
+    };
+
+    const dev  = getDevice();
+    const info = INSTRUCTIONS[dev.type] || INSTRUCTIONS['unknown'];
+
+    document.getElementById('device-badge').textContent = dev.label;
+    document.getElementById('sub-text').textContent =
+      'Steps 1–2 run instantly. Step 3 gives the fastest path for ' + dev.label + '.';
+
+    if (info.url) {
+      document.getElementById('step3-sub').textContent = 'Direct settings link for ' + dev.label;
+    } else {
+      document.getElementById('step3-label').textContent = 'Manual history clear';
+      document.getElementById('step3-sub').textContent   = 'Tap-by-tap guide for ' + dev.label;
+    }
+
+    function addLog(msg, type) {
       const el = document.getElementById('log');
       el.style.display = 'block';
-      const line = document.createElement('span');
-      line.className = 'log-line ' + type;
-      line.textContent = '> ' + msg;
-      el.appendChild(line);
+      const s = document.createElement('span');
+      s.className = 'll ' + type;
+      s.textContent = '> ' + msg;
+      el.appendChild(s);
       el.appendChild(document.createElement('br'));
     }
 
-    function setDot(id, state, label) {
-      document.getElementById('dot-' + id).className = 'dot ' + state;
-      document.getElementById('lbl-' + id).textContent = label;
+    function markDone(n) {
+      const el = document.getElementById('sn' + n);
+      el.classList.add('done');
+      el.textContent = '✓';
     }
 
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function showManual() {
+      const ic = document.getElementById('instruction-card');
+      ic.style.display = 'flex';
+      ic.innerHTML =
+        '<div class="ic-title">' + dev.label + ' — how to clear history</div>' +
+        info.steps.map(function(s, i) {
+          return '<div class="ic-step"><span class="ic-num">' + (i + 1) + '.</span>' + s + '</div>';
+        }).join('');
     }
 
-    async function runSequence() {
-      const btn = document.getElementById('close-btn');
-      btn.disabled = true;
+    async function runAll() {
+      document.getElementById('main-btn').disabled = true;
 
-      document.getElementById('status-list').style.display = 'flex';
+      await sleep(200);
 
-      await sleep(300);
-
-      // Step 1: Clear storage
+      // Step 1: wipe storage
       localStorage.clear();
       sessionStorage.clear();
-      setDot('storage', 'done', 'Storage cleared');
+      markDone(1);
       addLog('localStorage cleared', 'ok');
       addLog('sessionStorage cleared', 'ok');
-      document.getElementById('storage-preview').innerHTML =
-        '<span style="color:#1D9E75">localStorage → empty<br>sessionStorage → empty</span>';
 
-      await sleep(500);
+      await sleep(450);
 
-      // Step 2: Replace history entry
+      // Step 2: replace history entry
       history.replaceState(null, '', location.href);
-      setDot('history', 'done', 'History entry replaced');
+      markDone(2);
       addLog('history.replaceState() called', 'ok');
-      addLog('back button will not return to this page', 'ok');
+      addLog('back button will not return here', 'ok');
 
-      await sleep(500);
+      await sleep(450);
 
-      // Step 3: Attempt to close tab
-      addLog('attempting window.close()...', 'info');
+      // Step 3: open history settings or show manual guide
+      if (info.url) {
+        try {
+          window.location.href = info.url;
+          markDone(3);
+          addLog('opened: ' + info.url, 'ok');
+        } catch (e) {
+          addLog('direct link blocked — showing manual guide', 'er');
+          showManual();
+          markDone(3);
+        }
+      } else {
+        showManual();
+        markDone(3);
+        addLog('manual guide shown for ' + dev.label, 'ok');
+      }
+
+      await sleep(600);
+
+      // Step 4: close tab
+      addLog('attempting window.close()...', 'in');
       window.close();
 
       await sleep(500);
 
       if (!window.closed) {
-        setDot('close', 'fail', 'Tab close blocked by browser');
-        addLog('window.close() blocked (user-opened tab)', 'err');
-        addLog('falling back to about:blank in 1s...', 'info');
-        await sleep(1000);
+        markDone(4);
+        addLog('tab close blocked by browser', 'er');
+        addLog('redirecting to about:blank in 2s...', 'in');
+        document.getElementById('blank-btn').style.display = 'flex';
+        await sleep(2000);
         window.location.href = 'about:blank';
       } else {
-        setDot('close', 'done', 'Tab closed successfully');
+        markDone(4);
       }
     }
   </script>
-
 </body>
 </html>
